@@ -1,3 +1,6 @@
+env:
+  global:
+    - CC_TEST_REPORTER_ID=05dbf0b0139083ebc0328da318830b5463a2a7905f621357bba65f45dff18e61
 branches:
   only:
   - /.*/
@@ -20,7 +23,12 @@ before_install:
   - sudo systemctl restart postgresql.service || sudo journalctl -xe -n 20 -u postgresql.service
   - sleep 2
 before_script:
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
   - psql -c 'create database travisci;' -U postgres
   - python manage.py migrate
 script:
-  - coverage run manage.py test
+  - python manage.py test
+after_script:
+  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
