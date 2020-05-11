@@ -1,0 +1,29 @@
+version: "3.7"
+services:
+  mreg:
+    build:
+      context: .
+    ports:
+      - 8000:8000
+    depends_on:
+      - mreg-db
+    environment:
+        - MREG_DB=pg
+        - MREG_DEBUG=true
+  mreg-db:
+    image: postgres:latest
+    environment:
+      POSTGRES_PASSWORD: mreg
+      POSTGRES_USER: mreg_user
+    ports:
+      - 5432:5432
+  test:
+    build:
+      context: .
+    depends_on:
+      - mreg-db
+    environment:
+      - MREG_DB=pg
+      - MREG_DB_PG_DATABASE=mreg_test
+      - MREG_TEST=true
+      - MREG_TEST_ONLY=true
